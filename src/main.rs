@@ -3,6 +3,7 @@ mod blit;
 mod config;
 mod docdb;
 mod keys;
+mod theme;
 mod ui;
 
 use anyhow::Result;

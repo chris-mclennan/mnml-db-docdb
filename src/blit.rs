@@ -55,6 +55,7 @@ pub async fn run(app: &mut App, socket: &Path) -> Result<()> {
             &mut *w,
             &Message::Hello {
                 version: PROTOCOL_VERSION,
+                caps: tmnl_protocol::Caps::empty(),
             },
         )
         .map_err(|e| anyhow!("blit: hello: {e}"))?;
@@ -170,6 +171,7 @@ pub async fn run(app: &mut App, socket: &Path) -> Result<()> {
                     }
                 }
                 Ok(InputEvent::Mouse(_)) => {}
+                Ok(InputEvent::Focus(_)) | Ok(InputEvent::Hover(_)) | Ok(InputEvent::Ime(_)) => {}
                 Err(TryRecvError::Empty) => break,
                 Err(TryRecvError::Disconnected) => return Ok(()),
             }
@@ -188,6 +190,7 @@ pub async fn run(app: &mut App, socket: &Path) -> Result<()> {
         let bw = buf.area.width;
         let bh = buf.area.height;
         let mut cells = Vec::with_capacity(bw as usize * bh as usize);
+        crate::theme::poll_refresh();
         for y in 0..bh {
             for x in 0..bw {
                 let c = &buf[(x, y)];
@@ -259,6 +262,7 @@ fn modifier_to_bits(m: Modifier) -> u32 {
 }
 
 fn color_to_rgba(c: Color, is_bg: bool) -> u32 {
+    let c = crate::theme::remap(c);
     match c {
         Color::Rgb(r, g, b) => pack_rgba_u8(r, g, b, 0xff),
         Color::Reset => {
