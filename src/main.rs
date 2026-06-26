@@ -1,5 +1,4 @@
 mod app;
-mod blit;
 mod config;
 mod docdb;
 mod keys;
@@ -18,8 +17,6 @@ use clap::Parser;
 struct Cli {
     #[arg(long)]
     check: bool,
-    #[arg(long, value_name = "SOCKET")]
-    blit: Option<String>,
 }
 
 #[tokio::main]
@@ -41,11 +38,7 @@ async fn main() -> Result<()> {
         return Ok(());
     }
     let mut app = app::App::new(cfg).await?;
-    if let Some(socket) = cli.blit {
-        blit::run(&mut app, std::path::Path::new(&socket)).await
-    } else {
-        ui::run(&mut app).await
-    }
+    ui::run(&mut app).await
 }
 
 fn scrub_uri(uri: &str) -> String {
