@@ -14,6 +14,7 @@ the same binary points at either without code changes. The official
 
 ```sh
 cargo install --git https://github.com/chris-mclennan/mnml-db-docdb mnml-db-docdb
+mnml-db-docdb --install
 ```
 
 ## Setup
