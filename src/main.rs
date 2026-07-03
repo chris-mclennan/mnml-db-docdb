@@ -4,6 +4,7 @@ mod docdb;
 mod keys;
 mod theme;
 mod ui;
+mod install;
 
 use anyhow::Result;
 use clap::Parser;
@@ -17,11 +18,29 @@ use clap::Parser;
 struct Cli {
     #[arg(long)]
     check: bool,
+    /// Register this sibling with mnml — writes an integration
+    /// manifest at ~/.config/mnml/integrations/<id>.toml so the
+    /// rail chip + palette command + chord appear on the next
+    /// mnml startup (or after `integrations.refresh`).
+    #[arg(long)]
+    install: bool,
+    /// Remove the mnml integration manifest for this sibling.
+    #[arg(long)]
+    uninstall: bool,
 }
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
+    // --install / --uninstall run before auth / config so the
+    // first-run install doesn't require credentials to be set up.
+    if cli.install {
+        return install::install();
+    }
+    if cli.uninstall {
+        return install::uninstall();
+    }
+
     let cfg = config::load()?;
     if cli.check {
         println!("config: {}", config::config_path().display());
